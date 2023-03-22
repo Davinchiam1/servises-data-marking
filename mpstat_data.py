@@ -5,7 +5,7 @@ import os
 
 # Получение данных в формате выгрузки Mpstat и их совмещение по месяцам с добавлением метки времени
 def marker(row, colum, keywords):
-    val=0
+    val = 0
     for keyword in keywords:
         if row[colum].find(keyword) ==-1:
             val = 0
@@ -51,8 +51,6 @@ class Mpstat_data:
             self.final_frame[key] = self.final_frame.apply(lambda row: marker(row=row, colum=colum, keywords=markers[key]), axis=1)
 
 
-        pass
-
     def use_script(self, finalname='./final.xlsx', set_dates=True):
         self._create_lists()
         self.set_dates = set_dates
@@ -62,9 +60,9 @@ class Mpstat_data:
             self._concentrate_data()
         self._get_makers(colum='Название', markers={'test': ['увлаж', 'коллаг'],'test2':['омолаж'],'test3':['Крем']})
         self.final_frame.head(10)
-        # self.final_frame.to_excel(finalname, sheet_name='list1', index=False)
+        self.final_frame.to_excel(finalname, sheet_name='list1', index=False)
 
 
 test = Mpstat_data()
 test.use_script()
-# self.final_frame[key] = np.where(self.final_frame[colum].str.contains(markers[key][0], 0, 1))
+
