@@ -1,0 +1,70 @@
+import numpy as np
+import pandas as pd
+import os
+
+
+# Получение данных в формате выгрузки Mpstat и их совмещение по месяцам с добавлением метки времени
+def marker(row, colum, keywords):
+    val=0
+    for keyword in keywords:
+        if row[colum].find(keyword) ==-1:
+            val = 0
+        else:
+            val = 1
+    return val
+class Mpstat_data:
+    def __init__(self):
+        self.final_frame = None
+        self.temp_frame = None
+        self.file_list = []
+        self.date_list = []
+        self.set_dates = True
+
+    def _create_lists(self, directory=None):
+        if directory is not None:
+            for f in os.scandir(directory):
+                if f.is_file() and f.path.split('.')[-1].lower() == 'csv':
+                    self.file_list.append(f.path)
+                    if self.set_dates:
+                        self.date_list.append(f.path[-15:-5])
+        else:
+            for f in os.scandir():
+                if f.is_file() and f.path.split('.')[-1].lower() == 'csv':
+                    self.file_list.append(f.path)
+                    if self.set_dates:
+                        self.date_list.append(f.path[-15:-5])
+
+    def _get_data(self, filename, date):
+        self.temp_frame = pd.read_csv(filename, delimiter=';')
+        if self.set_dates:
+            self.temp_frame['data'] = date
+        # print(self.temp_frame.head(5))
+
+    def _concentrate_data(self):
+        if self.final_frame is None:
+            self.final_frame = self.temp_frame
+        else:
+            self.final_frame = pd.concat([self.temp_frame, self.final_frame], sort=False, axis=0)
+
+    def _get_makers(self, colum, markers={}):
+        for key in markers:
+            self.final_frame[key] = self.final_frame.apply(lambda row: marker(row=row, colum=colum, keywords=markers[key]), axis=1)
+
+
+        pass
+
+    def use_script(self, finalname='./final.xlsx', set_dates=True):
+        self._create_lists()
+        self.set_dates = set_dates
+
+        for filename, date in zip(self.file_list, self.date_list):
+            self._get_data(filename=filename, date=date)
+            self._concentrate_data()
+        self._get_makers(colum='Название', markers={'test': ['увлаж', 'коллаг'],'test2':['омолаж'],'test3':['Крем']})
+        self.final_frame.head(10)
+        # self.final_frame.to_excel(finalname, sheet_name='list1', index=False)
+
+
+test = Mpstat_data()
+test.use_script()
+# self.final_frame[key] = np.where(self.final_frame[colum].str.contains(markers[key][0], 0, 1))
