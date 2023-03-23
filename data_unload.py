@@ -8,10 +8,13 @@ def marker(row, colum, keywords):
     """" Base func for marking rows in frame by the presence of keywords"""
     val = 0
     for keyword in keywords:
-        if row[colum].find(keyword) == -1:
+        if type(row[colum]) is not str:
             val = 0
         else:
-            val = 1
+            if row[colum].find(keyword) == -1:
+                val = 0
+            else:
+                val = 1
     return val
 
 
@@ -69,8 +72,7 @@ class Data_unload:
                     keywords.append(keyword)
                 markers[key] = keywords
         for key in markers:
-            self.final_frame[key] = self.final_frame.apply(
-                lambda row: marker(row=row, colum=colum, keywords=markers[key]), axis=1)
+            self.final_frame[key] = self.final_frame.apply(lambda row: marker(row=row, colum=colum, keywords=markers[key]), axis=1)
 
     def use_script(self, finalname='./final.xlsx', set_dates=True, markers_file=None, colum=None):
         """Func for executing a script for marking data, control parameters determine the method of marking"""
@@ -86,4 +88,4 @@ class Data_unload:
 
 
 test = Data_unload()
-test.use_script(markers_file='./markers.txt', colum='Название')
+test.use_script(markers_file='./markers.txt', colum='Name')
