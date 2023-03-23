@@ -88,4 +88,4 @@ class Data_unload:
 
 
 test = Data_unload()
-test.use_script(markers_file='./markers.txt', colum='Name')
+test.use_script()
