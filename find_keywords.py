@@ -10,18 +10,18 @@ from pymorphy2 import MorphAnalyzer
 from collections import defaultdict
 from collections.abc import Iterable
 
+
 # nltk.download('punkt')
 # nltk.download('stopwords')
 
 class Find_keywords:
-    def __init__(self):
+    def __init__(self, language="russian"):
         self.frequency = {}
         self.temp_frame = None
         self.text = ''
         self.patterns = "[0-9!#$%&'()*+,./:;<=>?@[\]^_`{|}~—\"\-]+"
-        self.stopwords_ru = stopwords.words("russian")
+        self.stopwords_ru = stopwords.words(language)
         self.morph = MorphAnalyzer()
-
 
     def _get_text(self, filepath, name_colum, selection=None):
         if filepath.split('.')[-1].lower() == 'csv':
@@ -53,7 +53,7 @@ class Find_keywords:
             temp_list = self.temp_frame.to_list()
             self.text = ' '.join(temp_list)
             self.text = self.text.lower()
-            spec_chars = string.punctuation + '0123456789'+'\n\xa0«»\t—…'
+            spec_chars = string.punctuation + '0123456789' + '\n\xa0«»\t—…'
             self.text = "".join([ch for ch in self.text if ch not in spec_chars])
 
     def _count_frequency(self):
@@ -81,4 +81,4 @@ class Find_keywords:
 
 
 test = Find_keywords()
-test.use(filepath='./final.xlsx', name_colum='Название',need_normalization=False)
+test.use(filepath='./final.xlsx', name_colum='Название', need_normalization=True)
