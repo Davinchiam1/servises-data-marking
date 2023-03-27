@@ -53,7 +53,7 @@ class Find_keywords:
             temp_list = self.temp_frame.to_list()
             self.text = ' '.join(temp_list)
             self.text = self.text.lower()
-            spec_chars = string.punctuation + '\n\xa0«»\t—…'
+            spec_chars = string.punctuation + '0123456789'+'\n\xa0«»\t—…'
             self.text = "".join([ch for ch in self.text if ch not in spec_chars])
 
     def _count_frequency(self):
