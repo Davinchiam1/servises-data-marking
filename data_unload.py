@@ -26,7 +26,7 @@ class Data_unload:
         self.date_list = []
         self.set_dates = True
 
-    def _create_lists(self, directory=None):
+    def _create_lists(self, directory):
         """Finding of all .csv files in directory"""
         if directory is not None:
             for f in os.scandir(directory):
@@ -60,23 +60,32 @@ class Data_unload:
         markers = {}
         with open(markers_file, "r", encoding='utf8') as file:
             for line in file:
-                temp_line = line.split(':')
-                key = temp_line[0][0:-1] if temp_line[0][-1] == ' ' else temp_line[0]
-                keywords_temp = temp_line[1].split(',')
-                keywords = []
-                for keyword in keywords_temp:
-                    if keyword[0] == ' ' and keyword[-1] != '\n':
-                        keyword = keyword[1:]
-                    elif keyword[-1] == '\n' and keyword[0] == ' ':
-                        keyword = keyword[1:-1]
-                    keywords.append(keyword)
-                markers[key] = keywords
+                if line is not None:
+                    temp_line = line.split(':')
+                    key = temp_line[0][0:-1] if temp_line[0][-1] == ' ' else temp_line[0]
+                    keywords_temp = temp_line[1].split(',')
+                    keywords = []
+                    for keyword in keywords_temp:
+                        if keyword[0] == ' ' and keyword[-1] != '\n':
+                            keyword = keyword[1:]
+                        elif keyword[-1] == '\n' and keyword[0] == ' ':
+                            keyword = keyword[1:-1]
+                        keywords.append(keyword)
+                    markers[key] = keywords
         for key in markers:
-            self.final_frame[key] = self.final_frame.apply(lambda row: marker(row=row, colum=colum, keywords=markers[key]), axis=1)
+            self.final_frame[key] = self.final_frame.apply(
+                lambda row: marker(row=row, colum=colum, keywords=markers[key]), axis=1)
 
-    def use_script(self, finalname='./final.xlsx', set_dates=True, markers_file=None, colum=None):
+    def _to_zero(self):
+        self.final_frame = None
+        self.temp_frame = None
+        self.file_list = []
+        self.date_list = []
+        self.set_dates = True
+
+    def use_script(self, directory=None, finalname='./final.xlsx', set_dates=True, markers_file=None, colum=None):
         """Func for executing a script for marking data, control parameters determine the method of marking"""
-        self._create_lists()
+        self._create_lists(directory=directory)
         self.set_dates = set_dates
 
         for filename, date in zip(self.file_list, self.date_list):
@@ -85,7 +94,14 @@ class Data_unload:
         if markers_file is not None:
             self._get_makers(colum=colum, markers_file=markers_file)
         self.final_frame.to_excel(finalname, sheet_name='list1', index=False)
+        self._to_zero()
 
 
 test = Data_unload()
-test.use_script()
+test.use_script(directory='C:\\Users\\aos.user5\\Desktop\\патчи акне\\ozon\\по периодам',
+                finalname='C:\\Users\\aos.user5\\Desktop\\патчи акне\\ozon\\по периодам\\final.xlsx',
+                markers_file='C:\\Users\\aos.user5\\Desktop\\патчи акне\\ozon\\по периодам\\markers.txt',
+                colum='Название')
+test.use_script(directory='C:\\Users\\aos.user5\\Desktop\\патчи акне\\wb\\по периодам',
+                finalname='C:\\Users\\aos.user5\\Desktop\\патчи акне\\wb\\по периодам\\final.xlsx',
+                markers_file='C:\\Users\\aos.user5\\Desktop\\патчи акне\\wb\\по периодам\\markers.txt', colum='Name')
