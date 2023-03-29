@@ -47,7 +47,7 @@ class Find_keywords:
             return tokens
         return None
 
-    def _prepare_text(self, name_colum):
+    def _prepare_text(self):
         self.stopwords_ru.extend(['шт', 'мл'])
         self.temp_frame = self.temp_frame.apply(self._tokenize)
 

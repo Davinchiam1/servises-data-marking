@@ -98,10 +98,7 @@ class Data_unload:
 
 
 test = Data_unload()
-test.use_script(directory='C:\\Users\\aos.user5\\Desktop\\патчи акне\\ozon\\по периодам',
-                finalname='C:\\Users\\aos.user5\\Desktop\\патчи акне\\ozon\\по периодам\\final.xlsx',
-                markers_file='C:\\Users\\aos.user5\\Desktop\\патчи акне\\ozon\\по периодам\\markers.txt',
-                colum='Название')
-test.use_script(directory='C:\\Users\\aos.user5\\Desktop\\патчи акне\\wb\\по периодам',
-                finalname='C:\\Users\\aos.user5\\Desktop\\патчи акне\\wb\\по периодам\\final.xlsx',
-                markers_file='C:\\Users\\aos.user5\\Desktop\\патчи акне\\wb\\по периодам\\markers.txt', colum='Name')
+# test.use_script(directory='C:\\Users\\aos.user5\\Desktop\\сыворотки для ресниц\\ozon\\по периодам',
+#                 finalname='C:\\Users\\aos.user5\\Desktop\\сыворотки для ресниц\\ozon\\по периодам\\final.xlsx')
+test.use_script(directory='C:\\Users\\aos.user5\\Desktop\\сыворотки для ресниц\\wb\\по периодам\\масла',
+                finalname='C:\\Users\\aos.user5\\Desktop\\сыворотки для ресниц\\wb\\по периодам\\масла\\final.xlsx')
