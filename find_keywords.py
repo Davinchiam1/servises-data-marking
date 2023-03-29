@@ -32,46 +32,35 @@ class Find_keywords:
             self.temp_frame = self.temp_frame.loc[self.temp_frame[selection[0]] == selection[1]]
         self.temp_frame = self.temp_frame[name_colum]
 
-    def _lemmatize(self, docs):
+    def _tokenize(self, docs):
         docs = re.sub(self.patterns, ' ', docs)
         tokens = []
         for token in docs.split():
             if token and token not in self.stopwords_ru:
                 token = token.strip()
-                token = self.morph.normal_forms(token)[0]
+                if self.need_normalization:
+                    token = self.morph.normal_forms(token)[0]
+                else:
+                    token = token.lower()
                 tokens.append(token)
         if len(tokens) > 2:
             return tokens
         return None
 
     def _prepare_text(self, name_colum):
-        # TODO привести к единому виду варианты с нормализацией и без
         self.stopwords_ru.extend(['шт', 'мл'])
-        if self.need_normalization:
-            self.temp_frame = self.temp_frame.apply(self._lemmatize)
-        else:
-            temp_list = self.temp_frame.to_list()
-            self.text = ' '.join(temp_list)
-            self.text = self.text.lower()
-            spec_chars = string.punctuation + '0123456789' + '\n\xa0«»\t—…'
-            self.text = "".join([ch for ch in self.text if ch not in spec_chars])
+        self.temp_frame = self.temp_frame.apply(self._tokenize)
 
     def _count_frequency(self):
-        if self.need_normalization:
-            self.frequency = defaultdict(int)
-            for tokens in self.temp_frame.iloc[:]:
-                if isinstance(tokens, Iterable):
-                    for token in tokens:
-                        self.frequency[token] += 1
-        else:
-            text_tokens = word_tokenize(self.text)
-            text_tokens = [token.strip() for token in text_tokens if token not in self.stopwords_ru]
-            self.text = nltk.Text(text_tokens)
-            self.frequency = FreqDist(self.text)
+        self.frequency = defaultdict(int)
+        for tokens in self.temp_frame.iloc[:]:
+            if isinstance(tokens, Iterable):
+                for token in tokens:
+                    self.frequency[token] += 1
 
         final_frame = pd.DataFrame.from_dict(self.frequency, orient='index').reset_index()
         final_frame.columns = ['keyword', 'frequency']
-        print(final_frame.sort_values(by='frequency', ascending=False).head(20))
+        print(final_frame.sort_values(by='frequency', ascending=False).head(30))
 
     def use(self, filepath, name_colum, need_normalization=False):
         self.need_normalization = need_normalization
@@ -81,4 +70,4 @@ class Find_keywords:
 
 
 test = Find_keywords()
-test.use(filepath='./final.xlsx', name_colum='Название', need_normalization=True)
+test.use(filepath='./final1.xlsx', name_colum='Название', need_normalization=True)
