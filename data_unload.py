@@ -44,7 +44,7 @@ class Data_unload:
                         self.date_list.append(f.path[-15:-5])
                 if read_xlsx and f.path.split('.')[-1].lower() == 'xlsx':
                     self.file_list.append(f.path)
-        print(self.file_list)
+
 
     def _get_data(self, filename,read_xlsx, date=None):
         """ Read file into temp frame, marking by data if necessary"""

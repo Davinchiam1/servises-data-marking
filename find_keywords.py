@@ -1,18 +1,29 @@
 import re
 import os
 import pandas as pd
-import string
-from nltk import word_tokenize
-from nltk.probability import FreqDist
+from nltk.corpus import wordnet
+from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
 import nltk
-from pymorphy2 import MorphAnalyzer
+from pymorphy3 import MorphAnalyzer
 from collections import defaultdict
 from collections.abc import Iterable
 
 
 # nltk.download('punkt')
 # nltk.download('stopwords')
+# nltk.download('wordnet')
+# nltk.download('averaged_perceptron_tagger')
+
+def _get_wordnet_pos(word):
+    """Map POS tag to first character lemmatize() accepts"""
+    tag = nltk.pos_tag([word])[0][1][0].upper()
+    tag_dict = {"J": wordnet.ADJ,
+                "N": wordnet.NOUN,
+                "V": wordnet.VERB,
+                "R": wordnet.ADV}
+    return tag_dict.get(tag, wordnet.NOUN)
+
 
 class Find_keywords:
     def __init__(self, language="russian"):
@@ -20,8 +31,12 @@ class Find_keywords:
         self.temp_frame = None
         self.text = ''
         self.patterns = "[0-9!#$%&'()*+,./:;<=>?@[\]^_`{|}~—\"\-]+"
-        self.stopwords_ru = stopwords.words(language)
-        self.morph = MorphAnalyzer()
+        self.stopwords = stopwords.words(language)
+        self.lang=language
+        if language == "russian":
+            self.morph = MorphAnalyzer()
+        else:
+            self.morph = WordNetLemmatizer()
 
     def _get_text(self, filepath, name_colum, selection=None):
         if filepath.split('.')[-1].lower() == 'csv':
@@ -36,19 +51,22 @@ class Find_keywords:
         docs = re.sub(self.patterns, ' ', docs)
         tokens = []
         for token in docs.split():
-            if token and token not in self.stopwords_ru:
+            if token and token not in self.stopwords:
                 token = token.strip()
                 if self.need_normalization:
-                    token = self.morph.normal_forms(token)[0]
+                    if self.lang != 'russian':
+                        token = self.morph.lemmatize(token, _get_wordnet_pos(token)).lower()
+                    else:
+                        token = self.morph.normal_forms(token)[0]
                 else:
                     token = token.lower()
                 tokens.append(token)
-        if len(tokens) > 2:
+        if len(tokens) > 1:
             return tokens
         return None
 
     def _prepare_text(self, name_colum):
-        self.stopwords_ru.extend(['шт', 'мл'])
+        self.stopwords.extend(['шт', 'мл'])
         self.temp_frame = self.temp_frame.apply(self._tokenize)
 
     def _count_frequency(self):
@@ -69,5 +87,5 @@ class Find_keywords:
         self._count_frequency()
 
 
-test = Find_keywords()
-test.use(filepath='./final.xlsx', name_colum='Название', need_normalization=True)
+test = Find_keywords(language="english")
+test.use(filepath='./123.xlsx', name_colum='Title', need_normalization=True)
