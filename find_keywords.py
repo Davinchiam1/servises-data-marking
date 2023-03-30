@@ -47,7 +47,7 @@ class Find_keywords:
             return tokens
         return None
 
-    def _prepare_text(self):
+    def _prepare_text(self, name_colum):
         self.stopwords_ru.extend(['шт', 'мл'])
         self.temp_frame = self.temp_frame.apply(self._tokenize)
 
@@ -70,4 +70,4 @@ class Find_keywords:
 
 
 test = Find_keywords()
-test.use(filepath='./final1.xlsx', name_colum='Название', need_normalization=True)
+test.use(filepath='./final.xlsx', name_colum='Название', need_normalization=True)

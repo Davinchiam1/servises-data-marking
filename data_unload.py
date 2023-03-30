@@ -26,7 +26,7 @@ class Data_unload:
         self.date_list = []
         self.set_dates = True
 
-    def _create_lists(self, directory):
+    def _create_lists(self, directory, read_xlsx):
         """Finding of all .csv files in directory"""
         if directory is not None:
             for f in os.scandir(directory):
@@ -34,16 +34,24 @@ class Data_unload:
                     self.file_list.append(f.path)
                     if self.set_dates:
                         self.date_list.append(f.path[-15:-5])
+                if read_xlsx and f.path.split('.')[-1].lower() == 'xlsx':
+                    self.file_list.append(f.path)
         else:
             for f in os.scandir():
                 if f.is_file() and f.path.split('.')[-1].lower() == 'csv':
                     self.file_list.append(f.path)
                     if self.set_dates:
                         self.date_list.append(f.path[-15:-5])
+                if read_xlsx and f.path.split('.')[-1].lower() == 'xlsx':
+                    self.file_list.append(f.path)
+        print(self.file_list)
 
-    def _get_data(self, filename, date):
+    def _get_data(self, filename,read_xlsx, date=None):
         """ Read file into temp frame, marking by data if necessary"""
-        self.temp_frame = pd.read_csv(filename, delimiter=';')
+        if read_xlsx:
+            self.temp_frame = pd.read_excel(filename)
+        else:
+            self.temp_frame = pd.read_csv(filename, delimiter=';')
         if self.set_dates:
             self.temp_frame['data'] = date
         # print(self.temp_frame.head(5))
@@ -83,14 +91,18 @@ class Data_unload:
         self.date_list = []
         self.set_dates = True
 
-    def use_script(self, directory=None, finalname='./final.xlsx', set_dates=True, markers_file=None, colum=None):
+    def use_script(self, read_xlsx=False, directory=None, finalname='./final.xlsx', set_dates=True, markers_file=None, colum=None):
         """Func for executing a script for marking data, control parameters determine the method of marking"""
-        self._create_lists(directory=directory)
+        self._create_lists(directory=directory, read_xlsx=read_xlsx)
         self.set_dates = set_dates
-
-        for filename, date in zip(self.file_list, self.date_list):
-            self._get_data(filename=filename, date=date)
-            self._concentrate_data()
+        if read_xlsx:
+            for filename in self.file_list:
+                self._get_data(filename=filename, read_xlsx=read_xlsx)
+                self._concentrate_data()
+        else:
+            for filename, date in zip(self.file_list, self.date_list):
+                self._get_data(filename=filename, date=date, read_xlsx=read_xlsx)
+                self._concentrate_data()
         if markers_file is not None:
             self._get_makers(colum=colum, markers_file=markers_file)
         self.final_frame.to_excel(finalname, sheet_name='list1', index=False)
@@ -100,5 +112,7 @@ class Data_unload:
 test = Data_unload()
 # test.use_script(directory='C:\\Users\\aos.user5\\Desktop\\сыворотки для ресниц\\ozon\\по периодам',
 #                 finalname='C:\\Users\\aos.user5\\Desktop\\сыворотки для ресниц\\ozon\\по периодам\\final.xlsx')
-test.use_script(directory='C:\\Users\\aos.user5\\Desktop\\сыворотки для ресниц\\wb\\по периодам\\масла',
-                finalname='C:\\Users\\aos.user5\\Desktop\\сыворотки для ресниц\\wb\\по периодам\\масла\\final.xlsx')
+# test.use_script(directory='C:\\Users\\aos.user5\\Desktop\\сыворотки для ресниц\\wb\\по периодам\\масла',
+#                 finalname='C:\\Users\\aos.user5\\Desktop\\сыворотки для ресниц\\wb\\по периодам\\масла\\final.xlsx')
+
+test.use_script(read_xlsx=True, directory=None, markers_file='./markers.txt', set_dates=False, colum='Название')
