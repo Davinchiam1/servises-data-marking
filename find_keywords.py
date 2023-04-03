@@ -31,15 +31,10 @@ class Find_keywords:
     def __init__(self, language="russian"):
         self.frequency = {}
         self.temp_frame = None
-        self.n_grams = 2
+        self.n_grams = 1
         self.text = ''
         self.patterns = "[0-9!#$%&'()*+,./:;<=>?@[\]^_`{|}~—\"\-]+"
-        if self.n_grams > 1:
-            self.stopwords = ''
-        else:
-            self.stopwords = stopwords.words(language)
         self.lang = language
-
         if language == "russian":
             self.morph = MorphAnalyzer()
         else:
@@ -75,7 +70,11 @@ class Find_keywords:
         return None
 
     def _prepare_text(self):
-        # self.stopwords.extend(['шт', 'мл'])
+        if self.n_grams > 1:
+            self.stopwords = ''
+        else:
+            self.stopwords = stopwords.words(self.lang)
+            self.stopwords.extend(['шт', 'мл', "для", "гр", 'л', '№', 'е'])
         self.temp_frame = self.temp_frame.apply(self._tokenize)
 
     def _count_frequency(self, otput_file):
@@ -96,9 +95,9 @@ class Find_keywords:
         final_frame.to_excel(otput_file, sheet_name='list1', index=False)
 
     def use(self, name_colum, need_normalization=False, read_xlsx=True, directory=None,
-            set_dates=False, filepath=None, bigrams=False, otput_file='./keywords.xlsx'):
+            set_dates=False, filepath=None, n_grams=1, otput_file='./keywords.xlsx'):
         self.need_normalization = need_normalization
-        self.bigrams = bigrams
+        self.n_grams = n_grams
         dl = Data_loading()
         self.temp_frame = dl.get_data(read_xlsx=read_xlsx, directory=directory, set_dates=set_dates, filepath=filepath)
         self.temp_frame = self.temp_frame[name_colum]
@@ -109,4 +108,4 @@ class Find_keywords:
 test = Find_keywords()
 
 test.use(filepath='C:\\Users\\aos.user5\\Desktop\\Масло для лица\\wb\\периоды.xlsx',
-         name_colum='Name', need_normalization=False, otput_file="./масло триграммы.xlsx")
+         name_colum='Name', need_normalization=False, otput_file="./масло ключевые очист.xlsx")
