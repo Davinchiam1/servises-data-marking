@@ -8,7 +8,7 @@ import nltk
 from pymorphy3 import MorphAnalyzer
 from collections import defaultdict
 from collections.abc import Iterable
-
+from data_loading import Data_loading
 
 # nltk.download('punkt')
 # nltk.download('stopwords')
@@ -80,12 +80,14 @@ class Find_keywords:
         final_frame.columns = ['keyword', 'frequency']
         print(final_frame.sort_values(by='frequency', ascending=False).head(30))
 
-    def use(self, filepath, name_colum, need_normalization=False):
+    def use(self, name_colum, need_normalization=False, read_xlsx=True, directory=None, set_dates=False, filepath=None):
         self.need_normalization = need_normalization
-        self._get_text(filepath=filepath, name_colum=name_colum)
+        dl = Data_loading()
+        self.temp_frame = dl.get_data(read_xlsx=read_xlsx, directory=directory, set_dates=set_dates, filepath=filepath)
+        self.temp_frame=self.temp_frame[name_colum]
         self._prepare_text(name_colum=name_colum)
         self._count_frequency()
 
 
-test = Find_keywords(language="english")
-test.use(filepath='./123.xlsx', name_colum='Title', need_normalization=True)
+test = Find_keywords()
+test.use(filepath='./final.xlsx', name_colum='Name', need_normalization=True)
