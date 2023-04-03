@@ -23,6 +23,9 @@ class Data_unload:
     def __init__(self):
         self.final_frame = None
 
+    def _filter(self):
+        pass
+
     def _get_makers(self, colum, markers_file):
         """Marking data according to list of markers in .txt file"""
         markers = {}
@@ -64,4 +67,5 @@ test = Data_unload()
 # test.use_script(directory='C:\\Users\\aos.user5\\Desktop\\сыворотки для ресниц\\wb\\по периодам\\масла',
 #                 finalname='C:\\Users\\aos.user5\\Desktop\\сыворотки для ресниц\\wb\\по периодам\\масла\\final.xlsx')
 
-test.use_script()
+test.use_script(directory='C:\\Users\\aos.user5\\Desktop\\Масло для лица\\wb\\по периодам',
+                finalname='C:\\Users\\aos.user5\\Desktop\\Масло для лица\\wb\\по периодам\\final.xlsx')

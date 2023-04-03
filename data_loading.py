@@ -64,3 +64,7 @@ class Data_loading:
                 self._read_data(filepath=filename, selection=selection)
                 self._concentrate_data()
         return self.final_frame
+
+
+# if __name__ == "__main__":
+#     main()

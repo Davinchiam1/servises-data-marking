@@ -5,10 +5,12 @@ from nltk.corpus import wordnet
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
 import nltk
+from nltk.util import ngrams
 from pymorphy3 import MorphAnalyzer
 from collections import defaultdict
 from collections.abc import Iterable
 from data_loading import Data_loading
+
 
 # nltk.download('punkt')
 # nltk.download('stopwords')
@@ -29,10 +31,15 @@ class Find_keywords:
     def __init__(self, language="russian"):
         self.frequency = {}
         self.temp_frame = None
+        self.n_grams = 2
         self.text = ''
         self.patterns = "[0-9!#$%&'()*+,./:;<=>?@[\]^_`{|}~—\"\-]+"
-        self.stopwords = stopwords.words(language)
-        self.lang=language
+        if self.n_grams > 1:
+            self.stopwords = ''
+        else:
+            self.stopwords = stopwords.words(language)
+        self.lang = language
+
         if language == "russian":
             self.morph = MorphAnalyzer()
         else:
@@ -61,33 +68,45 @@ class Find_keywords:
                 else:
                     token = token.lower()
                 tokens.append(token)
+        if self.n_grams > 1:
+            tokens = list(ngrams(tokens, self.n_grams))
         if len(tokens) > 1:
             return tokens
         return None
 
-    def _prepare_text(self, name_colum):
-        self.stopwords.extend(['шт', 'мл'])
+    def _prepare_text(self):
+        # self.stopwords.extend(['шт', 'мл'])
         self.temp_frame = self.temp_frame.apply(self._tokenize)
 
-    def _count_frequency(self):
+    def _count_frequency(self, otput_file):
         self.frequency = defaultdict(int)
         for tokens in self.temp_frame.iloc[:]:
             if isinstance(tokens, Iterable):
                 for token in tokens:
-                    self.frequency[token] += 1
+                    if self.n_grams > 1:
+                        phrase = ''
+                        for word in token:
+                            phrase = phrase + word + ' '
+                        self.frequency[phrase] += 1
+                    else:
+                        self.frequency[token] += 1
 
         final_frame = pd.DataFrame.from_dict(self.frequency, orient='index').reset_index()
         final_frame.columns = ['keyword', 'frequency']
-        print(final_frame.sort_values(by='frequency', ascending=False).head(30))
+        final_frame.to_excel(otput_file, sheet_name='list1', index=False)
 
-    def use(self, name_colum, need_normalization=False, read_xlsx=True, directory=None, set_dates=False, filepath=None):
+    def use(self, name_colum, need_normalization=False, read_xlsx=True, directory=None,
+            set_dates=False, filepath=None, bigrams=False, otput_file='./keywords.xlsx'):
         self.need_normalization = need_normalization
+        self.bigrams = bigrams
         dl = Data_loading()
         self.temp_frame = dl.get_data(read_xlsx=read_xlsx, directory=directory, set_dates=set_dates, filepath=filepath)
-        self.temp_frame=self.temp_frame[name_colum]
-        self._prepare_text(name_colum=name_colum)
-        self._count_frequency()
+        self.temp_frame = self.temp_frame[name_colum]
+        self._prepare_text()
+        self._count_frequency(otput_file=otput_file)
 
 
 test = Find_keywords()
-test.use(filepath='./final.xlsx', name_colum='Name', need_normalization=True)
+
+test.use(filepath='C:\\Users\\aos.user5\\Desktop\\Масло для лица\\wb\\периоды.xlsx',
+         name_colum='Name', need_normalization=False, otput_file="./масло триграммы.xlsx")
