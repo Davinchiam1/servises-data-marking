@@ -11,6 +11,7 @@ class Data_loading:
         self.date_list = []
         self.set_dates = None
         self.read_xlsx = None
+        self.colunm_list = []
 
     def _create_lists(self, directory):
         """Finding of all .csv files in directory"""
@@ -45,7 +46,12 @@ class Data_loading:
         """Concentrating data into one dataframe"""
         if self.final_frame is None:
             self.final_frame = self.temp_frame
+            self.colunm_list = [column for column in self.final_frame]
         else:
+            temp_colums = [column for column in self.temp_frame]
+            for final_colum, temp_colum in zip(self.colunm_list, temp_colums):
+                if final_colum != temp_colum:
+                    self.temp_frame.rename(columns={ temp_colum: final_colum}, inplace=True)
             self.final_frame = pd.concat([self.temp_frame, self.final_frame], sort=False, axis=0)
 
     def get_data(self, directory, read_xlsx=False, selection=None, set_dates=True, filepath=None):

@@ -50,7 +50,7 @@ class Find_keywords:
         self.temp_frame = self.temp_frame[name_colum]
 
     def _tokenize(self, docs):
-        docs = re.sub(self.patterns, ' ', docs)
+        docs = re.sub(self.patterns, '', docs)
         tokens = []
         for token in docs.split():
             if token and token not in self.stopwords:
@@ -64,6 +64,13 @@ class Find_keywords:
                     token = token.lower()
                 tokens.append(token)
         if self.n_grams > 1:
+            # stringA = tokens[::self.n_grams]
+            # stringB = tokens[1::self.n_grams]
+            # if len(stringA) > len(stringB):
+            #     stringB.append(' ')
+            # tokens = []
+            # for i in range(len(stringA)):
+            #     tokens.append(stringA[i] + ' ' + stringB[i])
             tokens = list(ngrams(tokens, self.n_grams))
         if len(tokens) > 1:
             return tokens
@@ -72,6 +79,7 @@ class Find_keywords:
     def _prepare_text(self):
         if self.n_grams > 1:
             self.stopwords = ''
+            self.patterns = "[!#$%&'()*+,./:;<=>?@[\]^_`{|}~—\"\-]"
         else:
             self.stopwords = stopwords.words(self.lang)
             self.stopwords.extend(['шт', 'мл', "для", "гр", 'л', '№', 'е'])
@@ -105,7 +113,7 @@ class Find_keywords:
         self._count_frequency(otput_file=otput_file)
 
 
-test = Find_keywords()
-
-test.use(filepath='C:\\Users\\aos.user5\\Desktop\\Масло для лица\\wb\\периоды.xlsx',
-         name_colum='Name', need_normalization=False, otput_file="./масло ключевые очист.xlsx")
+test1 = Find_keywords()
+# test1.use(filepath='./test.xlsx', otput_file='./test_out1.xlsx', name_colum='Title', n_grams=2)
+test1.use(filepath='C:\\Users\\aos.user5\\Desktop\\Масло для лица\\wb\\периоды.xlsx', name_colum='Name',
+         need_normalization=False, otput_file="C:\\Users\\aos.user5\\Desktop\\Масло для лица\\масло ключевые очист.xlsx")

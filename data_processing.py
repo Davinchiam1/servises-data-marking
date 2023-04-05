@@ -67,5 +67,5 @@ test = Data_unload()
 # test.use_script(directory='C:\\Users\\aos.user5\\Desktop\\сыворотки для ресниц\\wb\\по периодам\\масла',
 #                 finalname='C:\\Users\\aos.user5\\Desktop\\сыворотки для ресниц\\wb\\по периодам\\масла\\final.xlsx')
 
-test.use_script(directory='C:\\Users\\aos.user5\\Desktop\\Масло для лица\\wb\\по периодам',
-                finalname='C:\\Users\\aos.user5\\Desktop\\Масло для лица\\wb\\по периодам\\final.xlsx')
+test.use_script(directory='C:\\Users\\aos.user5\\Desktop\\Масло для лица\\ozon\\по периодам',
+                finalname='C:\\Users\\aos.user5\\Desktop\\Масло для лица\\ozon\\по периодам\\final.xlsx')
