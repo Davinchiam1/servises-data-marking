@@ -103,17 +103,21 @@ class Find_keywords:
         final_frame.to_excel(otput_file, sheet_name='list1', index=False)
 
     def use(self, name_colum, need_normalization=False, read_xlsx=True, directory=None,
-            set_dates=False, filepath=None, n_grams=1, otput_file='./keywords.xlsx'):
+            set_dates=False, filepath=None, n_grams=1, otput_file='./keywords.xlsx', temp_frame=None):
         self.need_normalization = need_normalization
         self.n_grams = n_grams
-        dl = Data_loading()
-        self.temp_frame = dl.get_data(read_xlsx=read_xlsx, directory=directory, set_dates=set_dates, filepath=filepath)
+        if __name__ == "__main__":
+            dl = Data_loading()
+            self.temp_frame = dl.get_data(read_xlsx=read_xlsx, directory=directory, set_dates=set_dates,
+                                          filepath=filepath)
+        else:
+            self.temp_frame = temp_frame
         self.temp_frame = self.temp_frame[name_colum]
         self._prepare_text()
         self._count_frequency(otput_file=otput_file)
 
 
-test1 = Find_keywords()
+# test1 = Find_keywords()
 # test1.use(filepath='./test.xlsx', otput_file='./test_out1.xlsx', name_colum='Title', n_grams=2)
-test1.use(filepath='C:\\Users\\aos.user5\\Desktop\\Масло для лица\\wb\\периоды.xlsx', name_colum='Name',
-         need_normalization=False, otput_file="C:\\Users\\aos.user5\\Desktop\\Масло для лица\\масло ключевые очист.xlsx")
+# test1.use(filepath='C:\\Users\\aos.user5\\Desktop\\Масло для лица\\wb\\периоды.xlsx', name_colum='Name',
+#          need_normalization=False, otput_file="C:\\Users\\aos.user5\\Desktop\\Масло для лица\\масло ключевые очист.xlsx")

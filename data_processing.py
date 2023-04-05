@@ -51,21 +51,24 @@ class Data_unload:
         self.final_frame = None
 
     def use_script(self, read_xlsx=False, directory=None, finalname='./final.xlsx', set_dates=True, markers_file=None,
-                   colum=None):
+                   colum=None, temp_frame=None, filepath=None):
         """Func for executing a script for marking data, control parameters determine the method of marking"""
-        dl = Data_loading()
-        self.final_frame = dl.get_data(read_xlsx=read_xlsx, directory=directory, set_dates=set_dates)
+        if __name__ == "__main__":
+            dl = Data_loading()
+            self.final_frame = dl.get_data(read_xlsx=read_xlsx, directory=directory, set_dates=set_dates,
+                                           filepath=filepath)
+        else:
+            self.final_frame = temp_frame
         if markers_file is not None:
             self._get_makers(colum=colum, markers_file=markers_file)
         self.final_frame.to_excel(finalname, sheet_name='list1', index=False)
         self._to_zero()
 
-
-test = Data_unload()
+# test = Data_unload()
 # test.use_script(directory='C:\\Users\\aos.user5\\Desktop\\сыворотки для ресниц\\ozon\\по периодам',
 #                 finalname='C:\\Users\\aos.user5\\Desktop\\сыворотки для ресниц\\ozon\\по периодам\\final.xlsx')
 # test.use_script(directory='C:\\Users\\aos.user5\\Desktop\\сыворотки для ресниц\\wb\\по периодам\\масла',
 #                 finalname='C:\\Users\\aos.user5\\Desktop\\сыворотки для ресниц\\wb\\по периодам\\масла\\final.xlsx')
 
-test.use_script(directory='C:\\Users\\aos.user5\\Desktop\\Масло для лица\\ozon\\по периодам',
-                finalname='C:\\Users\\aos.user5\\Desktop\\Масло для лица\\ozon\\по периодам\\final.xlsx')
+# test.use_script(directory='C:\\Users\\aos.user5\\Desktop\\Масло для лица\\ozon\\по периодам',
+#                 finalname='C:\\Users\\aos.user5\\Desktop\\Масло для лица\\ozon\\по периодам\\final.xlsx')
