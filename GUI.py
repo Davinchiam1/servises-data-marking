@@ -110,7 +110,7 @@ class App(tk.Frame):
                            set_dates=set_dates, filepath=filepath)
         dp = Data_unload()
         dp.use_script(temp_frame=data, read_xlsx=read_xlsx, markers_file=markers, colum=name_colum,
-                      set_dates=set_dates, filepath=filepath, finalname=finalname++'\\final1.xlsx')
+                      set_dates=set_dates, filepath=filepath, finalname=finalname+'\\final1.xlsx')
         if find_keywords_var:
             fk = Find_keywords()
             fk.use(name_colum=name_colum, need_normalization=False, n_grams=1,
