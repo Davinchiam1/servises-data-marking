@@ -33,13 +33,17 @@ class App(tk.Frame):
         self.dir_file_var.set("Dir")
         self.rb1 = tk.Radiobutton(root, text="Папка", variable=self.dir_file_var, value="Dir")
         self.rb2 = tk.Radiobutton(root, text="Файл", variable=self.dir_file_var, value="File")
-        self.rb1.grid(row=0, column=3, sticky=tk.NW)
-        self.rb2.grid(row=0, column=4, sticky=tk.NW)
+
 
         self.selection_label = tk.Label(self, text="Selection:")
         self.selection_label.grid(row=3, column=0, sticky=tk.W)
         self.selection_entry = tk.Entry(self)
         self.selection_entry.grid(row=3, column=1)
+
+        self.language_label = tk.Label(self, text="Language:")
+        self.language_label.grid(row=6, column=2, sticky=tk.W)
+        self.language_entry = tk.Entry(self)
+        self.language_entry.grid(row=6, column=3)
 
         self.Output_name = tk.Label(self, text="Output name:")
         self.Output_name.grid(row=3, column=2, sticky=tk.W)
@@ -48,7 +52,7 @@ class App(tk.Frame):
 
         self.set_dates_var = tk.BooleanVar()
         self.set_dates_checkbox = tk.Checkbutton(self, text="Set dates", variable=self.set_dates_var)
-        self.set_dates_checkbox.grid(row=2, column=3, sticky=tk.W)
+        self.set_dates_checkbox.grid(row=2, column=2, sticky=tk.W)
 
         self.markers_label = tk.Label(self, text="Markers file:")
         self.markers_label.grid(row=5, column=0, sticky=tk.W)
@@ -57,15 +61,18 @@ class App(tk.Frame):
         self.markers_button = tk.Button(self, text="Browse...", command=self.browse_markers)
         self.markers_button.grid(row=5, column=2)
         self.name_colum_label = tk.Label(self, text="Name colum:")
-        self.name_colum_label.grid(row=5, column=3, sticky=tk.W)
+        self.name_colum_label.grid(row=6, column=0, sticky=tk.W)
         self.name_colum_entry = tk.Entry(self)
-        self.name_colum_entry.grid(row=5, column=4)
+        self.name_colum_entry.grid(row=6, column=1)
 
         self.load_button = tk.Button(self, text="Load data", command=self.load_data)
-        self.load_button.grid(row=6, column=1)
+        self.load_button.grid(row=7, column=1)
 
         self.quit_button = tk.Button(self, text="Quit", command=self.master.destroy)
-        self.quit_button.grid(row=6, column=2)
+        self.quit_button.grid(row=7, column=2)
+
+        self.rb1.grid(row=0, column=3, sticky=tk.NW)
+        self.rb2.grid(row=0, column=4, sticky=tk.NW)
 
     def browse_directory(self):
         if self.dir_file_var.get() == 'Dir':
@@ -112,7 +119,8 @@ class App(tk.Frame):
         dp.use_script(temp_frame=data, read_xlsx=read_xlsx, markers_file=markers, colum=name_colum,
                       set_dates=set_dates, filepath=filepath, finalname=finalname+'\\final1.xlsx')
         if find_keywords_var:
-            fk = Find_keywords()
+            language=self.language_entry.get()
+            fk = Find_keywords(language=language)
             fk.use(name_colum=name_colum, need_normalization=False, n_grams=1,
                    temp_frame=data, otput_file=finalname+'\\keywords.xlsx')
 
@@ -120,9 +128,9 @@ class App(tk.Frame):
 
 root = tk.Tk()
 root.title("Data Processing App")
-root.geometry("600x400")
+root.geometry("600x200")
 root.resizable(False, False)
-root.columnconfigure(0, minsize=50, weight=1)
+root.columnconfigure(3, minsize=50, weight=1)
 root.columnconfigure(1, minsize=50, weight=1)
 
 app = App(master=root)
