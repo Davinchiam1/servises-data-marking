@@ -1,5 +1,5 @@
 import os
-
+import re
 import pandas as pd
 
 
@@ -20,7 +20,13 @@ class Data_loading:
                 if f.is_file() and f.path.split('.')[-1].lower() == 'csv':
                     self.file_list.append(f.path)
                     if self.set_dates:
-                        self.date_list.append(f.path[-15:-5])
+                        dates = re.findall(r"\d{2}\.\d{2}\.\d{4}", f.path)
+                        if len(dates) > 1:
+                            date = dates[1]
+                        else:
+                            date = dates
+                        self.date_list.append(date)
+                        # self.date_list.append(f.path[-15:-5])
                 if self.read_xlsx and f.path.split('.')[-1].lower() == 'xlsx':
                     self.file_list.append(f.path)
         else:
@@ -28,7 +34,13 @@ class Data_loading:
                 if f.is_file() and f.path.split('.')[-1].lower() == 'csv':
                     self.file_list.append(f.path)
                     if self.set_dates:
-                        self.date_list.append(f.path[-15:-5])
+                        dates = re.findall(r"\d{2}\.\d{2}\.\d{4}", f.path)
+                        if len(dates) > 1:
+                            date = dates[1]
+                        else:
+                            date = dates
+                        self.date_list.append(date)
+                        # self.date_list.append(f.path[-15:-5])
                 if self.read_xlsx and f.path.split('.')[-1].lower() == 'xlsx':
                     self.file_list.append(f.path)
 
@@ -61,6 +73,12 @@ class Data_loading:
             self._create_lists(directory=directory)
         else:
             self.file_list.append(filepath)
+            dates = re.findall(r"\d{2}\.\d{2}\.\d{4}", filepath)
+            if len(dates) > 1:
+                date = dates[1]
+            else:
+                date = dates
+            self.date_list.append(date)
         if set_dates:
             for filename, date in zip(self.file_list, self.date_list):
                 self._read_data(filepath=filename, date=date, selection=selection)

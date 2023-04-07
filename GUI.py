@@ -5,7 +5,11 @@ from tkinter import messagebox
 from data_loading import Data_loading
 from data_processing import Data_unload
 from find_keywords import Find_keywords
-
+import nltk
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
+nltk.download('averaged_perceptron_tagger')
 
 class App(tk.Frame):
     def __init__(self, master):
@@ -92,21 +96,21 @@ class App(tk.Frame):
     def load_data(self):
         directory = self.directory_entry.get()
         read_xlsx = self.read_xlsx_var.get()
-        find_keywords_var = self.find_keywords_var
+        find_keywords_var = self.find_keywords_var.get()
         selection = self.selection_entry.get().split(",")
+        name_colum = self.name_colum_entry.get()
         if self.markers_entry.get() == '':
             markers = None
-            name_colum = None
         else:
             markers = self.markers_entry.get()
-            name_colum = self.name_colum_entry.get()
+            name_colum = self.name_colum_entry.get()[1:-1]
         filepath = None
         if len(selection) != 2:
             selection = None
         else:
             selection = (selection[0], selection[1])
         set_dates = self.set_dates_var.get()
-        if directory.endswith('.csv') or directory.endswith('.xlsx'):
+        if self.dir_file_var.get() != 'Dir':
             filepath = directory
             directory = None
             finalname = os.path.dirname(filepath)
@@ -119,7 +123,7 @@ class App(tk.Frame):
         dp.use_script(temp_frame=data, read_xlsx=read_xlsx, markers_file=markers, colum=name_colum,
                       set_dates=set_dates, filepath=filepath, finalname=finalname+'\\final1.xlsx')
         if find_keywords_var:
-            language=self.language_entry.get()
+            language = self.language_entry.get()
             fk = Find_keywords(language=language)
             fk.use(name_colum=name_colum, need_normalization=False, n_grams=1,
                    temp_frame=data, otput_file=finalname+'\\keywords.xlsx')

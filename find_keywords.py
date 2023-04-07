@@ -118,6 +118,6 @@ class Find_keywords:
 
 
 # test1 = Find_keywords()
-# test1.use(filepath='./test.xlsx', otput_file='./test_out1.xlsx', name_colum='Title', n_grams=2)
+# # test1.use(filepath='./test.xlsx', otput_file='./test_out1.xlsx', name_colum='Title', n_grams=2)
 # test1.use(filepath='C:\\Users\\aos.user5\\Desktop\\Масло для лица\\wb\\периоды.xlsx', name_colum='Name',
-#          need_normalization=False, otput_file="C:\\Users\\aos.user5\\Desktop\\Масло для лица\\масло ключевые очист.xlsx")
+#           need_normalization=False, otput_file="C:\\Users\\aos.user5\\Desktop\\Масло для лица\\масло ключевые очист.xlsx")
