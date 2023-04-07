@@ -5,11 +5,11 @@ from tkinter import messagebox
 from data_loading import Data_loading
 from data_processing import Data_unload
 from find_keywords import Find_keywords
-import nltk
-nltk.download('punkt')
-nltk.download('stopwords')
-nltk.download('wordnet')
-nltk.download('averaged_perceptron_tagger')
+# import nltk
+# nltk.download('punkt')
+# nltk.download('stopwords')
+# nltk.download('wordnet')
+# nltk.download('averaged_perceptron_tagger')
 
 class App(tk.Frame):
     def __init__(self, master):
@@ -121,12 +121,12 @@ class App(tk.Frame):
                            set_dates=set_dates, filepath=filepath)
         dp = Data_unload()
         dp.use_script(temp_frame=data, read_xlsx=read_xlsx, markers_file=markers, colum=name_colum,
-                      set_dates=set_dates, filepath=filepath, finalname=finalname+'\\final1.xlsx')
+                      set_dates=set_dates, filepath=filepath, finalname=finalname+'\\result\\final1.xlsx')
         if find_keywords_var:
             language = self.language_entry.get()
             fk = Find_keywords(language=language)
             fk.use(name_colum=name_colum, need_normalization=False, n_grams=1,
-                   temp_frame=data, otput_file=finalname+'\\keywords.xlsx')
+                   temp_frame=data, otput_file=finalname+'\\result\\keywords.xlsx')
 
 
 
