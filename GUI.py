@@ -102,8 +102,8 @@ class App(tk.Frame):
         if self.markers_entry.get() == '':
             markers = None
         else:
-            markers = self.markers_entry.get()
-            name_colum = self.name_colum_entry.get()[1:-1]
+            markers = self.markers_entry.get()[1:-1]
+            name_colum = self.name_colum_entry.get()
         filepath = None
         if len(selection) != 2:
             selection = None
@@ -125,7 +125,7 @@ class App(tk.Frame):
         if find_keywords_var:
             language = self.language_entry.get()
             fk = Find_keywords(language=language)
-            fk.use(name_colum=name_colum, need_normalization=False, n_grams=1,
+            fk.use(name_colum=name_colum, need_normalization=False, n_grams=2,
                    temp_frame=data, otput_file=finalname+'\\result\\keywords.xlsx')
 
 

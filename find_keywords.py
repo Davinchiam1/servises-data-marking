@@ -27,6 +27,28 @@ def _get_wordnet_pos(word):
     return tag_dict.get(tag, wordnet.NOUN)
 
 
+def _split_phrases(text):
+    words = text.split()  # разделить строку на список слов
+
+    phrases = []  # создать пустой список для хранения словосочетаний
+    current_phrase = ""  # начать с пустой строки
+
+    # перебрать все слова и объединить соседние в словосочетания
+    for word in words:
+        if word.isdigit():  # пропустить числа
+            continue
+        elif word.istitle():  # если слово начинается с заглавной буквы, то это начало нового словосочетания
+            phrases.append(current_phrase.strip())  # добавить предыдущее словосочетание в список
+            current_phrase = word  # начать новое словосочетание
+        else:
+            current_phrase += " " + word  # добавить слово к текущему словосочетанию
+
+    # добавить последнее словосочетание в список
+    phrases.append(current_phrase.strip())
+
+    return phrases
+
+
 class Find_keywords:
     def __init__(self, language="russian"):
         self.frequency = {}
@@ -50,38 +72,59 @@ class Find_keywords:
         self.temp_frame = self.temp_frame[name_colum]
 
     def _tokenize(self, docs):
-        docs = re.sub(self.patterns, '', docs)
         tokens = []
-        for token in docs.split():
-            if token and token not in self.stopwords:
-                token = token.strip()
-                if self.need_normalization:
-                    if self.lang != 'russian':
-                        token = self.morph.lemmatize(token, _get_wordnet_pos(token)).lower()
+        if self.n_grams == 1:
+            docs = re.sub(self.patterns, '', docs)
+            for token in docs.split():
+                if token and token not in self.stopwords:
+                    token = token.strip()
+                    if self.need_normalization:
+                        if self.lang != 'russian':
+                            token = self.morph.lemmatize(token, _get_wordnet_pos(token)).lower()
+                        else:
+                            token = self.morph.normal_forms(token)[0]
                     else:
-                        token = self.morph.normal_forms(token)[0]
-                else:
-                    token = token.lower()
-                tokens.append(token)
-        if self.n_grams > 1:
-            # stringA = tokens[::self.n_grams]
-            # stringB = tokens[1::self.n_grams]
-            # if len(stringA) > len(stringB):
-            #     stringB.append(' ')
-            # tokens = []
-            # for i in range(len(stringA)):
-            #     tokens.append(stringA[i] + ' ' + stringB[i])
+                        token = token.lower()
+                    tokens.append(token)
+                    if self.n_grams > 1:
+                        tokens = list(ngrams(tokens, self.n_grams))
+        else:
+            # current_phrase = ""
+            # for word in docs.split():
+            #     if word.isdigit():  # пропустить числа
+            #         continue
+            #     elif word.istitle():  # если слово начинается с заглавной буквы, то это начало нового словосочетания
+            #         tokens.append(current_phrase.strip())  # добавить предыдущее словосочетание в список
+            #         current_phrase = word  # начать новое словосочетание
+            #     else:
+            #         current_phrase += " " + word  # добавить слово к текущему словосочетанию
+            #
+            # # добавить последнее словосочетание в список
+            # tokens.append(current_phrase.strip())
+            docs = re.sub(self.patterns, '', docs)
+            for token in docs.split():
+                if token and token not in self.stopwords:
+                    token = token.strip()
+                    if self.need_normalization:
+                        if self.lang != 'russian':
+                            token = self.morph.lemmatize(token, _get_wordnet_pos(token)).lower()
+                        else:
+                            token = self.morph.normal_forms(token)[0]
+                    else:
+                        token = token.lower()
+                    tokens.append(token)
             tokens = list(ngrams(tokens, self.n_grams))
         if len(tokens) > 1:
             return tokens
         return None
 
     def _prepare_text(self):
-        if self.n_grams > 1:
+        if self.n_grams == 1:
             self.stopwords = ''
             self.patterns = "[!#$%&'()*+,./:;<=>?@[\]^_`{|}~—\"\-]"
         else:
             self.stopwords = stopwords.words(self.lang)
+            self.patterns = "[!#$%&'()*+,./:;<=>?@[\]^_`{|}~—\"\-]"
             self.stopwords.extend(['шт', 'мл', "для", "гр", 'л', '№', 'е'])
         self.temp_frame = self.temp_frame.apply(self._tokenize)
 
@@ -93,13 +136,16 @@ class Find_keywords:
                     if self.n_grams > 1:
                         phrase = ''
                         for word in token:
-                            phrase = phrase + word + ' '
+                            phrase = phrase + word
+                        # self.frequency[token] += 1
                         self.frequency[phrase] += 1
                     else:
                         self.frequency[token] += 1
 
         final_frame = pd.DataFrame.from_dict(self.frequency, orient='index').reset_index()
         final_frame.columns = ['keyword', 'frequency']
+        # if not os.path.exists(otput_file):
+        #     os.makedirs(otput_file)
         final_frame.to_excel(otput_file, sheet_name='list1', index=False)
 
     def use(self, name_colum, need_normalization=False, read_xlsx=True, directory=None,
