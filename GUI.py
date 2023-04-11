@@ -54,9 +54,10 @@ class App(tk.Frame):
         self.Output_name_entry = tk.Entry(self)
         self.Output_name_entry.grid(row=3, column=3)
 
-        self.set_dates_var = tk.BooleanVar()
+        self.set_dates_var = tk.BooleanVar(value=True)
         self.set_dates_checkbox = tk.Checkbutton(self, text="Set dates", variable=self.set_dates_var)
         self.set_dates_checkbox.grid(row=2, column=2, sticky=tk.W)
+
 
         self.markers_label = tk.Label(self, text="Markers file:")
         self.markers_label.grid(row=5, column=0, sticky=tk.W)
@@ -88,7 +89,7 @@ class App(tk.Frame):
         self.directory_entry.insert(0, directory)
 
     def browse_markers(self):
-        filetypes = [("CSV files", "*.csv"), ("XLSX files", "*.xlsx"), ("Текстовые файлы", "*.txt")]
+        filetypes = [("Текстовые файлы", "*.txt"), ("XLSX files", "*.xlsx"), ("CSV files", "*.csv")]
         directory = filedialog.askopenfilenames(initialdir=".", filetypes=filetypes)
         self.markers_entry.delete(0, tk.END)
         self.markers_entry.insert(0, directory)
@@ -111,22 +112,24 @@ class App(tk.Frame):
             selection = (selection[0], selection[1])
         set_dates = self.set_dates_var.get()
         if self.dir_file_var.get() != 'Dir':
-            filepath = directory
+            filepath = directory[1:-1]
             directory = None
             finalname = os.path.dirname(filepath)
         else:
             finalname = directory
+        if not os.path.exists(os.path.normpath((finalname+'\\result'))):
+            os.makedirs(finalname+'\\result')
         dl = Data_loading()
         data = dl.get_data(directory=directory, read_xlsx=read_xlsx, selection=selection,
                            set_dates=set_dates, filepath=filepath)
         dp = Data_unload()
         dp.use_script(temp_frame=data, read_xlsx=read_xlsx, markers_file=markers, colum=name_colum,
-                      set_dates=set_dates, filepath=filepath, finalname=finalname+'\\result\\final1.xlsx')
+                      set_dates=set_dates, filepath=filepath, finalname=os.path.normpath(finalname+'\\result\\final1.xlsx'))
         if find_keywords_var:
             language = self.language_entry.get()
             fk = Find_keywords(language=language)
-            fk.use(name_colum=name_colum, need_normalization=False, n_grams=2,
-                   temp_frame=data, otput_file=finalname+'\\result\\keywords.xlsx')
+            fk.use(name_colum=name_colum, need_normalization=False, n_grams=1,
+                   temp_frame=data, otput_file=os.path.normpath(finalname+'\\result\\keywords.xlsx'))
 
 
 

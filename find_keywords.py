@@ -144,8 +144,6 @@ class Find_keywords:
 
         final_frame = pd.DataFrame.from_dict(self.frequency, orient='index').reset_index()
         final_frame.columns = ['keyword', 'frequency']
-        # if not os.path.exists(otput_file):
-        #     os.makedirs(otput_file)
         final_frame.to_excel(otput_file, sheet_name='list1', index=False)
 
     def use(self, name_colum, need_normalization=False, read_xlsx=True, directory=None,
