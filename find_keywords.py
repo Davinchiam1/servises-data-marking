@@ -120,12 +120,12 @@ class Find_keywords:
 
     def _prepare_text(self):
         if self.n_grams == 1:
-            self.stopwords = ''
-            self.patterns = "[!#$%&'()*+,./:;<=>?@[\]^_`{|}~—\"\-]"
-        else:
             self.stopwords = stopwords.words(self.lang)
             self.patterns = "[!#$%&'()*+,./:;<=>?@[\]^_`{|}~—\"\-]"
-            self.stopwords.extend(['шт', 'мл', "для", "гр", 'л', '№', 'е'])
+        else:
+            self.stopwords = ['']
+            self.patterns = "[!#$%&'()*+,./:;<=>?@[\]^_`{|}~—\"\-]"
+            self.stopwords.extend(['шт', 'мл', "для", "гр", 'л', '№', 'е', "c"])
         self.temp_frame = self.temp_frame.apply(self._tokenize)
 
     def _count_frequency(self, otput_file):

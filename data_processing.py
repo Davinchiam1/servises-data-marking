@@ -5,17 +5,19 @@ from data_loading import Data_loading
 
 
 # Получение данных в формате выгрузки Mpstat и их совмещение по месяцам с добавлением метки времени
-def marker(row, colum, keywords):
+def marker(colum, keywords, row=''):
     """" Base func for marking rows in frame by the presence of keywords"""
     val = 0
+    # row = row.lower()
     for keyword in keywords:
         if type(row[colum]) is not str:
             val = 0
         else:
-            if row[colum].find(keyword) == -1:
+            if row[colum].lower().find(keyword) == -1:
                 val = 0
             else:
                 val = 1
+                break
     return val
 
 

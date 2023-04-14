@@ -63,7 +63,7 @@ class Data_loading:
             temp_colums = [column for column in self.temp_frame]
             for final_colum, temp_colum in zip(self.colunm_list, temp_colums):
                 if final_colum != temp_colum:
-                    self.temp_frame.rename(columns={ temp_colum: final_colum}, inplace=True)
+                    self.temp_frame.rename(columns={temp_colum: final_colum}, inplace=True)
             self.final_frame = pd.concat([self.temp_frame, self.final_frame], sort=False, axis=0)
 
     def get_data(self, directory, read_xlsx=False, selection=None, set_dates=True, filepath=None):
