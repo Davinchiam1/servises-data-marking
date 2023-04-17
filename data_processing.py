@@ -21,6 +21,24 @@ def marker(colum, keywords, row=''):
     return val
 
 
+def single_marker(colum, key, keywords, row=''):
+    """" Base func for marking rows in frame by the presence of keywords"""
+    val = 0
+    # row = row.lower()
+    for keyword in keywords:
+        if type(row[colum]) is not str:
+            val = 'Неразмечено'
+        else:
+            if row[colum].lower().find(keyword) == -1:
+                continue
+            else:
+                val = key
+                break
+    if val is None:
+        val = 'Неразмечено'
+    return val
+
+
 class Data_unload:
     def __init__(self):
         self.final_frame = None
@@ -28,7 +46,7 @@ class Data_unload:
     def _filter(self):
         pass
 
-    def _get_makers(self, colum, markers_file):
+    def _get_makers(self, colum, markers_file, single=False):
         """Marking data according to list of markers in .txt file"""
         markers = {}
         with open(markers_file, "r", encoding='utf8') as file:
@@ -45,9 +63,14 @@ class Data_unload:
                             keyword = keyword[1:-1]
                         keywords.append(keyword)
                     markers[key] = keywords
-        for key in markers:
-            self.final_frame[key] = self.final_frame.apply(
-                lambda row: marker(row=row, colum=colum, keywords=markers[key]), axis=1)
+        if single:
+            for key in markers:
+                self.final_frame['marks'] = self.final_frame.apply(
+                    lambda row: single_marker(row=row, colum=colum, keywords=markers[key], key=key), axis=1)
+        else:
+            for key in markers:
+                self.final_frame[key] = self.final_frame.apply(
+                    lambda row: marker(row=row, colum=colum, keywords=markers[key]), axis=1)
 
     def _to_zero(self):
         self.final_frame = None

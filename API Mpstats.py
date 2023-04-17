@@ -1,7 +1,10 @@
-import requests
+
 import json
 import pandas as pd
 from datetime import datetime
+
+import requests
+
 
 class requ_Mpstats:
 
@@ -10,7 +13,6 @@ class requ_Mpstats:
         self.request = 'wb/get/category'
         with open('token.txt', "r", encoding='utf8') as f:
             token = f.readline()
-            print(token)
         self.headers = {
             'X-Mpstats-TOKEN': token,
             'Content-Type': 'application/json'
@@ -19,7 +21,7 @@ class requ_Mpstats:
 
         self.sort = [{'colId': 'revenue', 'sort': 'desc'}]
         self.dates = []
-        self.temp_frame=None
+        self.temp_frame = None
 
     def _date_list(self, start_date='2021-03-01', end_date='2023-03-01'):
         from datetime import datetime, timedelta
@@ -34,7 +36,7 @@ class requ_Mpstats:
             current_date = last_day + timedelta(days=1)
         return dates
 
-    def category_request(self, d1, d2, category_string='Зоотовары/Для собак', startRow=0, endRow=5000,save=True):
+    def category_request(self, d1, d2, category_string='Зоотовары/Для собак', startRow=0, endRow=5000, save=True):
         category_string = category_string
 
         url = self.url + self.request
@@ -67,6 +69,8 @@ class requ_Mpstats:
             # print(df)
         else:
             pass
+        print(response.status_code)
+        response.close()
 
     def get_cat_by_dates(self, category_string, start_date, end_date):
         self.dates = self._date_list(start_date=start_date, end_date=end_date)
@@ -75,7 +79,7 @@ class requ_Mpstats:
         new_date_start = date_obj1.strftime('%d.%m.%Y')
         date_obj1 = datetime.strptime(end_date, '%Y-%m-%d')
         new_date_end = date_obj1.strftime('%d.%m.%Y')
-        save_date = new_date_start + '-'+ new_date_end
+        save_date = new_date_start + '-' + new_date_end
         for date in self.dates:
             self.category_request(d1=date[0], d2=date[1], category_string=category_string, save=False)
             if self.final_frame is None:
@@ -91,10 +95,10 @@ class requ_Mpstats:
 
 
 
-
-test = requ_Mpstats()
+# test = requ_Mpstats()
 # test.category_request(d1='2023-03-01', d2='2023-02-01')
-test.get_cat_by_dates(category_string='Зоотовары/Для кошек/Игрушки и когтеточки', start_date='2023-01-01', end_date='2023-03-01')
+# test.get_cat_by_dates(category_string='Зоотовары/Для собак/Аксессуары для кормления', start_date='2021-04-01',
+#                       end_date='2023-03-01')
 # url = 'http://mpstats.io/api/user/report_api_limit'
 #
 # headers = {
