@@ -100,12 +100,4 @@ class requ_Mpstats:
 # test.get_cat_by_dates(category_string='Зоотовары/Для собак/Аксессуары для кормления', start_date='2021-04-01',
 #                       end_date='2023-03-01')
 # url = 'http://mpstats.io/api/user/report_api_limit'
-#
-# headers = {
-#     'X-Mpstats-TOKEN': '61615ecd6159c8.9570050408ccb7fbf4ab2f74d256e0850caf2666',
-#     'Content-Type': 'application/json'
-# }
-#
-# response = requests.get(url, headers=headers)
-#
-# print(response.text)
+# Зоотовары/Для собак/Вольеры и клетки
