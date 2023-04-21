@@ -6,9 +6,10 @@ import pandas as pd
 from datetime import datetime
 from tqdm import tqdm
 
+
 class requ_Mpstats:
 
-    def __init__(self, request='wb/get/category'):
+    def __init__(self, request='wb'):
         self.url = 'https://mpstats.io/api/'
         self.request = request
         with open('token.txt', "r", encoding='utf8') as f:
@@ -37,11 +38,23 @@ class requ_Mpstats:
             current_date = last_day + timedelta(days=1)
         return dates
 
+    def get_sku_info(self, sku, save_directory=None):
+        url = self.url + self.request + "/get/items/batch"
+        # str(sku)
+        params = {'ids': sku}
+        response = requests.post(url=url, headers=self.headers, data=json.dumps(params))
+        print(response.status_code)
+        json_data = response.json()
+        df = pd.json_normalize(json_data)
+        df['photos'] = df['photos'][0][0]['f']
+        return df
+
+
     def category_request(self, d1, d2, category_string='Зоотовары/Для собак', startRow=0, endRow=5000,
                          save=True):
         category_string = category_string
 
-        url = self.url + self.request
+        url = self.url + self.request+"/get/category"
         params = {
             'd1': d1,
             'd2': d2,
@@ -71,13 +84,11 @@ class requ_Mpstats:
         new_d2 = date_obj1.strftime('%d.%m.%Y')
         self.temp_frame['date'] = new_d2
 
-
         if save:
             self.temp_frame.to_excel(category_string + ' ' + d1 + '-' + d2 + '.xlsx')
             # print(df)
 
-
-    def get_cat_by_dates(self, category_string, start_date, end_date):
+    def get_cat_by_dates(self, category_string, start_date, end_date, save_directory=None):
         self.dates = self._date_list(start_date=start_date, end_date=end_date)
         self.final_frame = None
         date_obj1 = datetime.strptime(start_date, '%Y-%m-%d')
@@ -90,8 +101,12 @@ class requ_Mpstats:
 
             self.category_request(d1=date[0], d2=date[1], category_string=category_string, save=False)
             if self.final_frame is None:
-                self.final_frame = self.temp_frame
-                self.colunm_list = [column for column in self.final_frame]
+                if self.temp_frame.shape[0] != 0:
+                    self.final_frame = self.temp_frame
+                    self.colunm_list = [column for column in self.final_frame]
+                else:
+                    i = i + 1
+                    print('No data from' + date[0] + ' ' + date[1])
             else:
                 temp_colums = [column for column in self.temp_frame]
                 for final_colum, temp_colum in zip(self.colunm_list, temp_colums):
@@ -103,15 +118,20 @@ class requ_Mpstats:
                 print('#' + str(i) + ' Done!')
                 i = i + 1
                 self.temp_frame = None
-        self.final_frame.to_excel(category_string.split(sep='/')[-2]+' ' + category_string.split(sep='/')[-1]
-                                  + ' ' + save_date + '.xlsx')
+                if save_directory is not None:
+                    save_path = save_directory + '/' + category_string.split(sep='/')[-2] + ' ' + \
+                                category_string.split(sep='/')[-1] + ' ' + save_date + '.xlsx'
+                else:
+                    save_path = category_string.split(sep='/')[-2] + ' ' + category_string.split(sep='/')[
+                        -1] + ' ' + save_date + '.xlsx'
+        self.final_frame.to_excel(save_path)
+        print('Finished')
 
-
-# test = requ_Mpstats()
-test = requ_Mpstats(request='oz/get/category')
+test = requ_Mpstats()
+# test = requ_Mpstats(request='wb/get/subject')
+test.get_sku_info(sku=[76839328])
 # test.category_request(d1='2023-03-01', d2='2023-02-01')
-test.get_cat_by_dates(category_string='Товары для животных/Для кошек/Лежаки и кровати', start_date='2021-04-01',
-                      end_date='2023-03-01')
+# test.get_cat_by_dates(category_string='Товары для животных/Миски для животных', start_date='2021-04-01', end_date='2023-03-01')
 # url = 'http://mpstats.io/api/user/report_api_limit'
 # Зоотовары/Для собак/Вольеры и клетки
 # Зоотовары/Для собак/Корм и лакомства
