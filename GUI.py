@@ -106,6 +106,53 @@ class App(tk.Frame):
         self.rb1.grid(row=4, column=3, sticky='n')
         self.rb2.grid(row=4, column=4, sticky='n')
 
+        self.new_window_button = tk.Button(self, text="SKU search", command=self.open_new_window)
+        self.new_window_button.grid(row=2, column=3)
+
+    def open_new_window(self):
+        new_window = tk.Toplevel(self.master)
+        new_window.title("SKU search")
+        new_window.geometry("300x200")
+
+        self.SKU = tk.Label(new_window, text="SKU entry:")
+        self.SKU.grid(row=1, column=0, sticky=tk.W)
+        self.SKU_entry = tk.Entry(new_window)
+        self.SKU_entry.grid(row=1, column=1)
+        self.SKU_button = tk.Button(new_window, text="Browse...", command=self.browse_SKU_file)
+        self.SKU_button.grid(row=1, column=2)
+
+        self.rb01 = tk.Radiobutton(new_window, text="Wildberries", variable=self.wb_oz_var, value="wb")
+        self.rb02 = tk.Radiobutton(new_window, text="Ozon", variable=self.wb_oz_var, value="oz")
+        self.rb01.grid(row=0, column=0, sticky=tk.N)
+        self.rb02.grid(row=0, column=1, sticky=tk.N)
+
+        self.save_label = tk.Label(new_window, text="Save directory:")
+        self.save_label.grid(row=3, column=0, sticky=tk.W)
+        self.save_entry = tk.Entry(new_window)
+        self.save_entry.grid(row=3, column=1)
+        self.save_button = tk.Button(new_window, text="Browse...", command=self.browse_save_directory)
+        self.save_button.grid(row=3, column=2)
+
+        self.date_entry_start = DateEntry(new_window, width=12, date_pattern='yyyy-MM-dd', background='darkblue',
+                                          foreground='white', borderwidth=2, year=2023)
+        self.date_entry_start.grid(row=2, column=0)
+
+        self.date_entry_end = DateEntry(new_window, width=12, date_pattern='yyyy-MM-dd',background='darkblue',
+                                        foreground='white', borderwidth=2, year=2023)
+        self.date_entry_end.grid(row=2, column=1)
+
+        self.load_info_var = tk.BooleanVar()
+        self.load_info_checkbox = tk.Checkbutton(new_window, text="Load info", variable=self.load_info_var)
+        self.load_info_checkbox.grid(row=4, column=0, sticky=tk.W)
+        self.load_sales_var = tk.BooleanVar()
+        self.load_sales_checkbox = tk.Checkbutton(new_window, text="Load sales", variable=self.load_sales_var)
+        self.load_sales_checkbox.grid(row=4, column=1, sticky=tk.W)
+
+        self.load_SKU_button = tk.Button(new_window, text="Load SKU", command=self.load_SKU)
+        self.load_SKU_button.grid(row=4, column=2)
+
+
+
     def load_category(self):
         save_directory = self.save_entry.get()
         category = self.category_entry.get()
@@ -123,6 +170,11 @@ class App(tk.Frame):
         save_directory = filedialog.askdirectory()
         self.save_entry.delete(0, tk.END)
         self.save_entry.insert(0, save_directory)
+    def browse_SKU_file(self):
+        filetypes = [("CSV files", "*.csv"), ("XLSX files", "*.xlsx")]
+        directory = filedialog.askopenfilenames(initialdir=".", filetypes=filetypes)
+        self.SKU_entry.delete(0, tk.END)
+        self.SKU_entry.insert(0, directory)
     def browse_directory(self):
         if self.dir_file_var.get() == 'Dir':
             directory = filedialog.askdirectory()
@@ -138,6 +190,22 @@ class App(tk.Frame):
         self.markers_entry.delete(0, tk.END)
         self.markers_entry.insert(0, directory)
         pass
+
+    def load_SKU(self):
+        save_directory = self.save_entry.get()+'\\SKU_list'
+        if not os.path.exists(os.path.normpath((save_directory))):
+            os.makedirs(save_directory)
+        SKU_list = self.SKU_entry.get()
+        d1 = self.date_entry_start.get()
+        d2 = self.date_entry_end.get()
+        if self.wb_oz_var.get() == 'wb':
+            api_connect = requ_Mpstats()
+        else:
+            api_connect = requ_Mpstats(request='oz')
+        if SKU_list is not None:
+            api_connect.load_by_SKU(sku_list=SKU_list, start_date=d1, end_date=d2, save_directory=save_directory)
+
+
     def load_data(self):
         directory = self.directory_entry.get()
         read_xlsx = self.read_xlsx_var.get()

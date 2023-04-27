@@ -1,3 +1,4 @@
+import os.path
 import time
 
 import requests
@@ -38,7 +39,7 @@ class requ_Mpstats:
             current_date = last_day + timedelta(days=1)
         return dates
 
-    def get_sku_info(self, sku, save_directory=None):
+    def _get_sku_info(self, sku):
         url = self.url + self.request + "/get/items/batch"
         # str(sku)
         params = {'ids': sku}
@@ -49,12 +50,23 @@ class requ_Mpstats:
         df['photos'] = df['photos'][0][0]['f']
         return df
 
+    def _get_sku_sales(self, sku, d1, d2):
+        url = self.url + self.request + "/get/item/" + str(sku) + '/sales'
+        params = {
+            'd1': d1,
+            'd2': d2
+        }
+        response = requests.get(url=url, headers=self.headers, params=params)
+        print(response.status_code)
+        json_data = response.json()
+        df = pd.json_normalize(json_data)
+        return df
 
     def category_request(self, d1, d2, category_string='Зоотовары/Для собак', startRow=0, endRow=5000,
                          save=True):
         category_string = category_string
 
-        url = self.url + self.request+"/get/category"
+        url = self.url + self.request + "/get/category"
         params = {
             'd1': d1,
             'd2': d2,
@@ -127,9 +139,33 @@ class requ_Mpstats:
         self.final_frame.to_excel(save_path)
         print('Finished')
 
-test = requ_Mpstats()
+    def load_by_SKU(self, save_directory, start_date, end_date, sku_list, load_info=True, load_sales=True ):
+        if os.path.isfile(sku_list):
+            if os.path.splitext(sku_list)[1] == '.csv':
+                sku_frame = pd.read_csv(sku_list, delimiter=';')
+            elif os.path.splitext(sku_list)[1] == '.xlsx':
+                sku_frame = pd.read_excel(sku_list)
+            sku_list = list(sku_frame['SKU'])
+        else:
+            sku_item = sku_list
+            sku_list = []
+            sku_list.append(sku_item)
+
+        if load_info:
+            info_frame = self._get_sku_info(sku_list)
+            info_frame.to_excel(save_directory + '/SKU\'s info.xlsx')
+
+        if load_sales:
+            save_directory = save_directory + '\\sales'
+            if not os.path.exists(os.path.normpath(save_directory)):
+                os.makedirs(save_directory)
+            for sku in sku_list:
+                sales_info = self._get_sku_sales(sku=sku, d1=start_date, d2=end_date)
+                sales_info.to_excel(save_directory + '/' + str(sku) + '_sale.xlsx')
+
+# test = requ_Mpstats()
 # test = requ_Mpstats(request='wb/get/subject')
-test.get_sku_info(sku=[76839328])
+# print(test._get_sku_sales(sku=51450143,d1='2023-03-01',d2='2023-03-30'))
 # test.category_request(d1='2023-03-01', d2='2023-02-01')
 # test.get_cat_by_dates(category_string='Товары для животных/Миски для животных', start_date='2021-04-01', end_date='2023-03-01')
 # url = 'http://mpstats.io/api/user/report_api_limit'
