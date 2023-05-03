@@ -139,7 +139,7 @@ class requ_Mpstats:
         self.final_frame.to_excel(save_path)
         print('Finished')
 
-    def load_by_SKU(self, save_directory, start_date, end_date, sku_list, load_info=True, load_sales=True ):
+    def load_by_SKU(self, save_directory, start_date, end_date, sku_list, load_info=False, load_sales=False, db_connect=False):
         if os.path.isfile(sku_list):
             if os.path.splitext(sku_list)[1] == '.csv':
                 sku_frame = pd.read_csv(sku_list, delimiter=';')
@@ -152,8 +152,20 @@ class requ_Mpstats:
             sku_list.append(sku_item)
 
         if load_info:
-            info_frame = self._get_sku_info(sku_list)
-            info_frame.to_excel(save_directory + '/SKU\'s info.xlsx')
+            index = 0
+            step = 199
+            info_frame = pd.DataFrame()
+            while index < len(sku_list):
+                temp_list = sku_list[index:index + step]
+                temp=self._get_sku_info(temp_list)
+                info_frame = pd.concat([info_frame, temp],ignore_index=True)
+                index = index + step+1
+                if (index + step+1) > len(sku_list):
+                    step = len(sku_list)-index
+            if db_connect:
+                return info_frame
+            else:
+                info_frame.to_excel(save_directory + '/SKU\'s info.xlsx')
 
         if load_sales:
             save_directory = save_directory + '\\sales'

@@ -7,7 +7,7 @@ from data_processing import Data_unload
 from find_keywords import Find_keywords
 from API_Mpstats import requ_Mpstats
 from tkcalendar import DateEntry
-
+from db_wb import Load_handbook
 
 class App(tk.Frame):
     def __init__(self, master):
@@ -45,7 +45,7 @@ class App(tk.Frame):
                                           foreground='white', borderwidth=2, year=2021)
         self.date_entry_start.grid(row=1, column=3)
 
-        self.date_entry_end = DateEntry(self, width=12, date_pattern='yyyy-MM-dd',background='darkblue',
+        self.date_entry_end = DateEntry(self, width=12, date_pattern='yyyy-MM-dd', background='darkblue',
                                         foreground='white', borderwidth=2, year=2023)
         self.date_entry_end.grid(row=1, column=4)
 
@@ -65,7 +65,6 @@ class App(tk.Frame):
         self.category_entry = tk.Entry(self)
         self.category_entry.grid(row=1, column=1)
 
-
         self.selection_label = tk.Label(self, text="Selection:")
         self.selection_label.grid(row=5, column=0, sticky=tk.W)
         self.selection_entry = tk.Entry(self)
@@ -84,7 +83,6 @@ class App(tk.Frame):
         self.set_dates_var = tk.BooleanVar(value=True)
         self.set_dates_checkbox = tk.Checkbutton(self, text="Set dates", variable=self.set_dates_var)
         self.set_dates_checkbox.grid(row=4, column=2, sticky=tk.W)
-
 
         self.markers_label = tk.Label(self, text="Markers file:")
         self.markers_label.grid(row=6, column=0, sticky=tk.W)
@@ -137,7 +135,7 @@ class App(tk.Frame):
                                           foreground='white', borderwidth=2, year=2023)
         self.date_entry_start.grid(row=2, column=0)
 
-        self.date_entry_end = DateEntry(new_window, width=12, date_pattern='yyyy-MM-dd',background='darkblue',
+        self.date_entry_end = DateEntry(new_window, width=12, date_pattern='yyyy-MM-dd', background='darkblue',
                                         foreground='white', borderwidth=2, year=2023)
         self.date_entry_end.grid(row=2, column=1)
 
@@ -148,10 +146,15 @@ class App(tk.Frame):
         self.load_sales_checkbox = tk.Checkbutton(new_window, text="Load sales", variable=self.load_sales_var)
         self.load_sales_checkbox.grid(row=4, column=1, sticky=tk.W)
 
+        self.db_connect_var = tk.BooleanVar()
+        self.db_connect_checkbox = tk.Checkbutton(new_window, text="Load info", variable=self.db_connect_var)
+        self.db_connect_checkbox.grid(row=5, column=0, sticky=tk.W)
+
         self.load_SKU_button = tk.Button(new_window, text="Load SKU", command=self.load_SKU)
         self.load_SKU_button.grid(row=4, column=2)
 
-
+        self.load_to_db = tk.Button(new_window, text="Loat to Database", command=self.load_to_db)
+        self.load_to_db.grid(row=5, column=2)
 
     def load_category(self):
         save_directory = self.save_entry.get()
@@ -161,20 +164,25 @@ class App(tk.Frame):
         if self.wb_oz_var.get() == 'wb':
             api_connect = requ_Mpstats()
         else:
-            api_connect=requ_Mpstats(request='oz')
+            api_connect = requ_Mpstats(request='oz')
         if category is not None:
-            api_connect.get_cat_by_dates(category_string=category, start_date=d1, end_date=d2,save_directory=save_directory)
-
+            api_connect.get_cat_by_dates(category_string=category, start_date=d1, end_date=d2,
+                                         save_directory=save_directory)
 
     def browse_save_directory(self):
         save_directory = filedialog.askdirectory()
         self.save_entry.delete(0, tk.END)
         self.save_entry.insert(0, save_directory)
+
+    def load_to_db(self):
+        Load_handbook(self.frame)
+
     def browse_SKU_file(self):
         filetypes = [("CSV files", "*.csv"), ("XLSX files", "*.xlsx")]
         directory = filedialog.askopenfilenames(initialdir=".", filetypes=filetypes)
         self.SKU_entry.delete(0, tk.END)
         self.SKU_entry.insert(0, directory)
+
     def browse_directory(self):
         if self.dir_file_var.get() == 'Dir':
             directory = filedialog.askdirectory()
@@ -192,10 +200,11 @@ class App(tk.Frame):
         pass
 
     def load_SKU(self):
-        save_directory = self.save_entry.get()+'\\SKU_list'
+        save_directory = self.save_entry.get() + '\\SKU_list'
         if not os.path.exists(os.path.normpath((save_directory))):
             os.makedirs(save_directory)
         SKU_list = self.SKU_entry.get()
+        db_connect = self.db_connect_var.get()
         d1 = self.date_entry_start.get()
         d2 = self.date_entry_end.get()
         if self.wb_oz_var.get() == 'wb':
@@ -203,8 +212,13 @@ class App(tk.Frame):
         else:
             api_connect = requ_Mpstats(request='oz')
         if SKU_list is not None:
-            api_connect.load_by_SKU(sku_list=SKU_list, start_date=d1, end_date=d2, save_directory=save_directory)
-
+            if db_connect:
+                self.frame = api_connect.load_by_SKU(sku_list=SKU_list, start_date=d1, end_date=d2,
+                                                     save_directory=save_directory, load_info=self.load_info_var.get(),
+                                                     load_sales=self.load_sales_var.get(), db_connect=db_connect)
+            else:
+                api_connect.load_by_SKU(sku_list=SKU_list, start_date=d1, end_date=d2, save_directory=save_directory,
+                                        load_info=self.load_info_var.get(), load_sales=self.load_sales_var.get())
 
     def load_data(self):
         directory = self.directory_entry.get()
@@ -229,20 +243,20 @@ class App(tk.Frame):
             finalname = os.path.dirname(filepath)
         else:
             finalname = directory
-        if not os.path.exists(os.path.normpath((finalname+'\\result'))):
-            os.makedirs(finalname+'\\result')
+        if not os.path.exists(os.path.normpath((finalname + '\\result'))):
+            os.makedirs(finalname + '\\result')
         dl = Data_loading()
         data = dl.get_data(directory=directory, read_xlsx=read_xlsx, selection=selection,
                            set_dates=set_dates, filepath=filepath)
         dp = Data_unload()
         dp.use_script(temp_frame=data, read_xlsx=read_xlsx, markers_file=markers, colum=name_colum,
-                      set_dates=set_dates, filepath=filepath, finalname=os.path.normpath(finalname+'\\result\\final1.xlsx'))
+                      set_dates=set_dates, filepath=filepath,
+                      finalname=os.path.normpath(finalname + '\\result\\final1.xlsx'))
         if find_keywords_var:
             language = self.language_entry.get()
             fk = Find_keywords(language=language)
             fk.use(name_colum=name_colum, need_normalization=False, n_grams=1,
-                   temp_frame=data, otput_file=os.path.normpath(finalname+'\\result\\keywords.xlsx'))
-
+                   temp_frame=data, otput_file=os.path.normpath(finalname + '\\result\\keywords.xlsx'))
 
 
 root = tk.Tk()
