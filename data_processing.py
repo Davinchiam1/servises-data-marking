@@ -86,7 +86,10 @@ class Data_unload:
             self.final_frame = temp_frame
         if markers_file is not None:
             self._get_makers(colum=colum, markers_file=markers_file)
-        self.final_frame.to_excel(finalname, sheet_name='list1', index=False)
+        if self.final_frame.shape[0]>250000:
+            self.final_frame.to_csv(finalname+'.csv',index=False, sep=';',encoding='utf-8-sig')
+        else:
+            self.final_frame.to_excel(finalname+'.xlsx', sheet_name='list1', index=False)
         self._to_zero()
 
 # test = Data_unload()

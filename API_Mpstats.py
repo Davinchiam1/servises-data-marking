@@ -1,11 +1,21 @@
 import os.path
 import time
-
 import requests
 import json
 import pandas as pd
 from datetime import datetime
 from tqdm import tqdm
+
+
+def progress_bar(func):
+    def wrapper(*args, **kwargs):
+        with tqdm(total=100) as pbar:
+            for i in range(100):
+                pbar.update(1)
+                result = func(*args, **kwargs)
+        return result
+
+    return wrapper
 
 
 class requ_Mpstats:
@@ -20,7 +30,7 @@ class requ_Mpstats:
             'X-Mpstats-TOKEN': token,
             'Content-Type': 'application/json'
         }
-        self.filter = {'sales': {'filterType': 'number', 'type': 'greaterThanOrEqual', 'filter': 5, 'filterTo': None}}
+        self.filter = {'sales': {'filterType': 'number', 'type': 'greaterThanOrEqual', 'filter': 20, 'filterTo': None}}
 
         self.sort = [{'colId': 'revenue', 'sort': 'desc'}]
         self.dates = []
@@ -62,6 +72,7 @@ class requ_Mpstats:
         df = pd.json_normalize(json_data)
         return df
 
+    # @progress_bar
     def category_request(self, d1, d2, category_string='Зоотовары/Для собак', startRow=0, endRow=5000,
                          save=True):
         category_string = category_string
@@ -100,6 +111,7 @@ class requ_Mpstats:
             self.temp_frame.to_excel(category_string + ' ' + d1 + '-' + d2 + '.xlsx')
             # print(df)
 
+
     def get_cat_by_dates(self, category_string, start_date, end_date, save_directory=None):
         self.dates = self._date_list(start_date=start_date, end_date=end_date)
         self.final_frame = None
@@ -130,16 +142,27 @@ class requ_Mpstats:
                 print('#' + str(i) + ' Done!')
                 i = i + 1
                 self.temp_frame = None
-                if save_directory is not None:
-                    save_path = save_directory + '/' + category_string.split(sep='/')[-2] + ' ' + \
-                                category_string.split(sep='/')[-1] + ' ' + save_date + '.xlsx'
+                if category_string.find('/'):
+                    category = category_string
                 else:
-                    save_path = category_string.split(sep='/')[-2] + ' ' + category_string.split(sep='/')[
-                        -1] + ' ' + save_date + '.xlsx'
-        self.final_frame.to_excel(save_path)
+                    category = category_string.split(sep='/')[-2] + ' ' + category_string.split(sep='/')[-1]
+                if self.final_frame.shape[0] > 250000:
+                    format ='.csv'
+                else:
+                    format = '.xlsx'
+                if save_directory is not None:
+                    save_path = save_directory + '/' + category + ' ' + save_date + format
+                else:
+                    save_path = category + ' ' + save_date + format
+        if format == '.csv':
+            self.final_frame.to_csv(save_path, sep=';',encoding='utf-8-sig')
+        else:
+            self.final_frame.to_excel(save_path)
         print('Finished')
 
-    def load_by_SKU(self, save_directory, start_date, end_date, sku_list, load_info=False, load_sales=False, db_connect=False):
+    # @progress_bar
+    def load_by_SKU(self, save_directory, start_date, end_date, sku_list, load_info=False, load_sales=False,
+                    db_connect=False):
         if os.path.isfile(sku_list):
             if os.path.splitext(sku_list)[1] == '.csv':
                 sku_frame = pd.read_csv(sku_list, delimiter=';')
@@ -157,11 +180,11 @@ class requ_Mpstats:
             info_frame = pd.DataFrame()
             while index < len(sku_list):
                 temp_list = sku_list[index:index + step]
-                temp=self._get_sku_info(temp_list)
-                info_frame = pd.concat([info_frame, temp],ignore_index=True)
-                index = index + step+1
-                if (index + step+1) > len(sku_list):
-                    step = len(sku_list)-index
+                temp = self._get_sku_info(temp_list)
+                info_frame = pd.concat([info_frame, temp], ignore_index=True)
+                index = index + step + 1
+                if (index + step + 1) > len(sku_list):
+                    step = len(sku_list) - index
             if db_connect:
                 return info_frame
             else:
@@ -190,3 +213,4 @@ class requ_Mpstats:
 #             'Товары для животных/Для собак/Матрасы и лежаки', 'Товары для животных/Для собак/Переноски']
 # for cat in tqdm(cat_list):
 #     test.get_cat_by_dates(category_string=cat, start_date='2021-04-01', end_date='2023-03-01')
+

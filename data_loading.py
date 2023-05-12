@@ -46,7 +46,7 @@ class Data_loading:
 
     def _read_data(self, filepath, selection, date=None):
         if filepath.split('.')[-1].lower() == 'csv':
-            self.temp_frame = pd.read_csv(filepath, delimiter=';')
+            self.temp_frame = pd.read_csv(filepath, delimiter=';', encoding='utf-8-sig')
         elif filepath.split('.')[-1].lower() == 'xlsx' and self.read_xlsx:
             self.temp_frame = pd.read_excel(filepath)
         if self.set_dates:
