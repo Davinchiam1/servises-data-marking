@@ -251,7 +251,7 @@ class App(tk.Frame):
         dp = Data_unload()
         dp.use_script(temp_frame=data, read_xlsx=read_xlsx, markers_file=markers, colum=name_colum,
                       set_dates=set_dates, filepath=filepath,
-                      finalname=os.path.normpath(finalname + '\\result\\final1.xlsx'))
+                      finalname=os.path.normpath(finalname + '\\result\\final1'))
         if find_keywords_var:
             language = self.language_entry.get()
             fk = Find_keywords(language=language)
