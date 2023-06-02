@@ -17,6 +17,7 @@ class App(tk.Frame):
         self.create_widgets()
 
     def create_widgets(self):
+        """Main window with load from api and load from files blocks"""
         self.read_xlsx_var = tk.BooleanVar()
         self.read_xlsx_checkbox = tk.Checkbutton(self, text="Read XLSX files", variable=self.read_xlsx_var)
         self.read_xlsx_checkbox.grid(row=4, column=0, sticky=tk.W)
@@ -108,6 +109,7 @@ class App(tk.Frame):
         self.new_window_button.grid(row=2, column=3)
 
     def open_new_window(self):
+        """Secondary window for load from api by sku"""
         new_window = tk.Toplevel(self.master)
         new_window.title("SKU search")
         new_window.geometry("300x200")
@@ -157,6 +159,8 @@ class App(tk.Frame):
         self.load_to_db.grid(row=5, column=2)
 
     def load_category(self):
+        """Execute load category by name from d1 to d2. Category must be named in style - Base_name/Secondary_name/...
+        Category can be loaded from Ozon or Wildberries"""
         save_directory = self.save_entry.get()
         category = self.category_entry.get()
         d1 = self.date_entry_start.get()
@@ -170,20 +174,24 @@ class App(tk.Frame):
                                          save_directory=save_directory)
 
     def browse_save_directory(self):
+        """Get dir to save loaded files"""
         save_directory = filedialog.askdirectory()
         self.save_entry.delete(0, tk.END)
         self.save_entry.insert(0, save_directory)
 
     def load_to_db(self):
+        """Load all SKU to db"""
         Load_handbook(self.frame)
 
     def browse_SKU_file(self):
+        """Get file with list of SKU to load from api"""
         filetypes = [("CSV files", "*.csv"), ("XLSX files", "*.xlsx")]
         directory = filedialog.askopenfilenames(initialdir=".", filetypes=filetypes)
         self.SKU_entry.delete(0, tk.END)
         self.SKU_entry.insert(0, directory)
 
     def browse_directory(self):
+        """Get dir or file to load for further processing"""
         if self.dir_file_var.get() == 'Dir':
             directory = filedialog.askdirectory()
         else:
@@ -193,6 +201,7 @@ class App(tk.Frame):
         self.directory_entry.insert(0, directory)
 
     def browse_markers(self):
+        """Get file with markers list for marking function"""
         filetypes = [("Текстовые файлы", "*.txt"), ("XLSX files", "*.xlsx"), ("CSV files", "*.csv")]
         directory = filedialog.askopenfilenames(initialdir=".", filetypes=filetypes)
         self.markers_entry.delete(0, tk.END)
@@ -200,6 +209,7 @@ class App(tk.Frame):
         pass
 
     def load_SKU(self):
+        """Load SKU info from api. Requires file with SKU list or single SKU. """
         save_directory = self.save_entry.get() + '\\SKU_list'
         if not os.path.exists(os.path.normpath((save_directory))):
             os.makedirs(save_directory)
@@ -221,6 +231,9 @@ class App(tk.Frame):
                                         load_info=self.load_info_var.get(), load_sales=self.load_sales_var.get())
 
     def load_data(self):
+        """Loading data from files, processing it (markers,keys, date) if selected.Results are saved in new files.
+        Requires name of name colum for keywords, language in format - russian - for them and file or dir to load
+        original data"""
         directory = self.directory_entry.get()
         read_xlsx = self.read_xlsx_var.get()
         find_keywords_var = self.find_keywords_var.get()
