@@ -48,7 +48,12 @@ class Data_loading:
         if filepath.split('.')[-1].lower() == 'csv':
             self.temp_frame = pd.read_csv(filepath, delimiter=';', encoding='utf-8-sig')
         elif filepath.split('.')[-1].lower() == 'xlsx' and self.read_xlsx:
-            self.temp_frame = pd.read_excel(filepath)
+            dataframes = pd.read_excel(filepath, sheet_name=None)
+            for sheet_name, df in dataframes.items():
+                if sheet_name != 'list1':
+                    df['Sheet_name'] = sheet_name
+                self.temp_frame = pd.concat([self.temp_frame, df], sort=False, axis=0)
+                # self.temp_frame = pd.read_excel(filepath)
         if self.set_dates:
             self.temp_frame['date'] = date
         if selection is not None:

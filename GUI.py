@@ -269,7 +269,9 @@ class App(tk.Frame):
             language = self.language_entry.get()
             fk = Find_keywords(language=language)
             fk.use(name_colum=name_colum, need_normalization=False, n_grams=1,
-                   temp_frame=data, otput_file=os.path.normpath(finalname + '\\result\\keywords.xlsx'))
+                   temp_frame=data, otput_file=os.path.normpath(finalname + '\\result\\keywords1.xlsx'))
+            fk.use(name_colum=name_colum, need_normalization=False, n_grams=3,
+                   temp_frame=data, otput_file=os.path.normpath(finalname + '\\result\\keywords3.xlsx'))
 
 
 root = tk.Tk()

@@ -125,7 +125,7 @@ class Find_keywords:
         else:
             self.stopwords = ['']
             self.patterns = "[!#$%&'()*+,./:;<=>?@[\]^_`{|}~—\"\-]"
-            self.stopwords.extend(['шт', 'мл', "для", "гр", 'л', '№', 'е', "c"])
+            self.stopwords.extend(['шт', 'мл', "для", "гр", 'л', '№', 'е', "c",'and','to',])
         self.temp_frame = self.temp_frame.apply(self._tokenize)
 
     def _count_frequency(self, otput_file):
@@ -136,7 +136,7 @@ class Find_keywords:
                     if self.n_grams > 1:
                         phrase = ''
                         for word in token:
-                            phrase = phrase + word
+                            phrase = phrase +' '+ word
                         # self.frequency[token] += 1
                         self.frequency[phrase] += 1
                     else:
