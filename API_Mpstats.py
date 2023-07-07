@@ -168,7 +168,7 @@ class requ_Mpstats:
         if format == '.csv':
             self.final_frame.to_csv(save_path + format, sep=';',encoding='utf-8-sig')
         else:
-            self.final_frame.to_excel(save_path + format)
+            self.final_frame.to_excel(save_path + format,engine='openpyxl')
         print('Finished')
 
     # @progress_bar
